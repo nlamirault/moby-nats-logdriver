@@ -48,6 +48,13 @@ type response struct {
 	Err string
 }
 
+func (d *driver) Handlers(h *sdk.Handler) {
+	h.HandleFunc("/LogDriver.StartLogging", d.startLoggingHandler())
+	h.HandleFunc("/LogDriver.StopLogging", d.stopLoggingHandler())
+	h.HandleFunc("/LogDriver.Capabilities", d.capabilitiesHandler())
+	h.HandleFunc("/LogDriver.ReadLogs", d.readLogsHandler())
+}
+
 func respond(err error, w http.ResponseWriter) {
 	var res response
 	if err != nil {
@@ -56,8 +63,8 @@ func respond(err error, w http.ResponseWriter) {
 	json.NewEncoder(w).Encode(&res)
 }
 
-func (d *driver) Handlers(h *sdk.Handler) {
-	h.HandleFunc("/LogDriver.StartLogging", func(w http.ResponseWriter, r *http.Request) {
+func (d *driver) startLoggingHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		var req StartLoggingRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -70,9 +77,11 @@ func (d *driver) Handlers(h *sdk.Handler) {
 
 		err := d.StartLogging(req.File, req.Info)
 		respond(err, w)
-	})
+	}
+}
 
-	h.HandleFunc("/LogDriver.StopLogging", func(w http.ResponseWriter, r *http.Request) {
+func (d *driver) stopLoggingHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		var req StopLoggingRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -80,15 +89,19 @@ func (d *driver) Handlers(h *sdk.Handler) {
 		}
 		err := d.StopLogging(req.File)
 		respond(err, w)
-	})
+	}
+}
 
-	h.HandleFunc("/LogDriver.Capabilities", func(w http.ResponseWriter, r *http.Request) {
+func (d *driver) capabilitiesHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(&CapabilitiesResponse{
 			Cap: logger.Capability{ReadLogs: true},
 		})
-	})
+	}
+}
 
-	h.HandleFunc("/LogDriver.ReadLogs", func(w http.ResponseWriter, r *http.Request) {
+func (d *driver) readLogsHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		var req ReadLogsRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -105,5 +118,5 @@ func (d *driver) Handlers(h *sdk.Handler) {
 		w.Header().Set("Content-Type", "application/x-json-stream")
 		wf := ioutils.NewWriteFlusher(w)
 		io.Copy(wf, stream)
-	})
+	}
 }
