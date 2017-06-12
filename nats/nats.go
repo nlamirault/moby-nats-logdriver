@@ -112,6 +112,14 @@ func NewClient() (*Client, error) {
 	}, nil
 }
 
+func (client *Client) Disconnect() error {
+	logrus.WithField("driver", driverName).Infof("Nats broker disconnecting")
+	if client.conn != nil {
+		client.conn.Close()
+	}
+	return nil
+}
+
 func (client *Client) LogToNats(logMessage LogMessage) error {
 	logrus.WithField("driver", driverName).Debugf("Send to nats: %s", logMessage)
 	msg, err := json.Marshal(logMessage)

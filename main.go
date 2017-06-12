@@ -62,7 +62,10 @@ func main() {
 	}
 	driver := driver.New(natsClient)
 	driver.Handlers(&h)
-	if err := h.ServeUnix("jsonfile", 0); err != nil {
+	if err := h.ServeUnix("moby-nats-logdriver", 0); err != nil {
+		panic(err)
+	}
+	if err != natsClient.Disconnect(); err != nil {
 		panic(err)
 	}
 }
