@@ -12,9 +12,9 @@ This plugin allows users to route all Moby/Docker logs to Nats.
 
 ### From Dockerhub:
 
-Install the plugin but add the --disable flag so it does not start immediately. The kafka brokers must be set first.
+Install the plugin but add the --disable flag so it does not start immediately. The nats brokers must be set first.
 ```
-docker plugin install --disable mickyg/kafka-logdriver:latest
+docker plugin install --disable mickyg/nats-logdriver:latest
 ```
 Set the Nats endpoint and configure the plugin as per the configuration section.
 In the example below the host 192.168.0.1 is a Nats endpoint
@@ -26,7 +26,7 @@ Then enable the plugin
 docker plugin enable nlamirault/nats-logdriver:latest
 ```
 Now it's installed! To use the log driver for a given container, use the `--logdriver` flag. For example, to start the hello-world
-container with all of it's logs being sent to Kafka, run the command:
+container with all of it's logs being sent to Nats, run the command:
 ```
 docker run --log-driver nlamirault/nats-logdriver:latest hello-world
 ```
@@ -36,14 +36,14 @@ docker run --log-driver nlamirault/nats-logdriver:latest hello-world
 
 Clone the project
 ```
-git clone https://github.com/MickayG/moby-kafka-logdriver.git
+git clone https://github.com/MickayG/moby-nats-logdriver.git
 cd moby-nats-logdriver
 ```
 Build the plugin and install it
 ```
 make install
 ```
-Set the KAFKA_BROKER_ARG variable. In the example below the host 192.168.0.1 is a Kafka broker.
+Set the NATS_ADDR variable. In the example below the host 192.168.0.1 is a Nats server.
 ```
 docker plugin set nlamirault/nats-logdriver:latest NATS_ADDR="192.168.0.1:9092"
 ```
@@ -54,7 +54,7 @@ make enable
 Now test it! Connect to your broker and consume from the "dockerlogs" topic
 (Topic can be changed via environment variable, see below). Then launch a container:
 ```
-docker run --log-driver mickyg/kafka-logdriver:latest hello-world
+docker run --log-driver mickyg/nats-logdriver:latest hello-world
 ```
 
 
@@ -64,7 +64,7 @@ Docker logdriver plugins can be configured on global/plugin basis. The below con
 
 Once the plugin has been installed, you can modify the below arguments with the command
 ```
-docker plugin set kafka-logdriver <OPTION>=<VALUE>
+docker plugin set nats-logdriver <OPTION>=<VALUE>
 ```
 For example, to change the subject to "logs"
 ```
