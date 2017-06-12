@@ -14,7 +14,7 @@ This plugin allows users to route all Moby/Docker logs to Nats.
 
 Install the plugin but add the --disable flag so it does not start immediately. The nats brokers must be set first.
 ```
-docker plugin install --disable mickyg/nats-logdriver:latest
+docker plugin install --disable nlamirault/nats-logdriver:latest
 ```
 Set the Nats endpoint and configure the plugin as per the configuration section.
 In the example below the host 192.168.0.1 is a Nats endpoint
@@ -54,7 +54,7 @@ make enable
 Now test it! Connect to your broker and consume from the "dockerlogs" topic
 (Topic can be changed via environment variable, see below). Then launch a container:
 ```
-docker run --log-driver mickyg/nats-logdriver:latest hello-world
+docker run --log-driver nlamirault/nats-logdriver:latest hello-world
 ```
 
 
