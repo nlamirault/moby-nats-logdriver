@@ -48,7 +48,7 @@ type response struct {
 	Err string
 }
 
-func (d *driver) Handlers(h *sdk.Handler) {
+func (d *driver) SetupHandlers(h *sdk.Handler) {
 	h.HandleFunc("/LogDriver.StartLogging", d.startLoggingHandler())
 	h.HandleFunc("/LogDriver.StopLogging", d.stopLoggingHandler())
 	h.HandleFunc("/LogDriver.Capabilities", d.capabilitiesHandler())

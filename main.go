@@ -61,7 +61,7 @@ func main() {
 		panic(err)
 	}
 	driver := driver.New(natsClient)
-	driver.Handlers(&h)
+	driver.SetupHandlers(&h)
 	if err := h.ServeUnix("moby-nats-logdriver", 0); err != nil {
 		panic(err)
 	}
