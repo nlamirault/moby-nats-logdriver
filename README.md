@@ -87,6 +87,7 @@ docker plugin set nats-logdriver NATS_SUBJECT=logs
 Each log message will be written to a single Nats message.
 
 | Field | Description |
+|-------|-------------|
 | Line |The log message itself |
 | Source | Source of the log message as reported by docker |
 | Timestamp | Timestamp that the log was collected by the log driver |
