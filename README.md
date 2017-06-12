@@ -19,7 +19,9 @@ docker plugin install --disable nlamirault/nats-logdriver:latest
 Set the Nats endpoint and configure the plugin as per the configuration section.
 In the example below the host 192.168.0.1 is a Nats endpoint
 ```
-docker plugin set nlamirault/nats-logdriver:latest NATS_ADDR="192.168.0.1:9092"
+docker plugin set nlamirault/nats-logdriver:latest NATS_ADDR=nats://192.168.0.1:4222
+docker plugin set nlamirault/nats-logdriver:latest NATS_SUBJECT=docker
+docker plugin set nlamirault/nats-logdriver:latest LOG_LEVEL=debug
 ```
 Then enable the plugin
 ```
@@ -41,15 +43,17 @@ cd moby-nats-logdriver
 ```
 Build the plugin and install it
 ```
-make install
+make plugin-install
 ```
 Set the NATS_ADDR variable. In the example below the host 192.168.0.1 is a Nats server.
 ```
-docker plugin set nlamirault/nats-logdriver:latest NATS_ADDR="192.168.0.1:9092"
+docker plugin set nlamirault/nats-logdriver:latest NATS_ADDR="nats://192.168.0.1:4222"
+docker plugin set nlamirault/nats-logdriver:latest NATS_SUBJECT=docker
+docker plugin set nlamirault/nats-logdriver:latest LOG_LEVEL=debug
 ```
 Enable the plugin:
 ```
-make enable
+make plugin-enable
 ```
 Now test it! Connect to your broker and consume from the "dockerlogs" topic
 (Topic can be changed via environment variable, see below). Then launch a container:
@@ -91,3 +95,25 @@ Each log message will be written to a single Nats message.
 | ContainerImageName | Name of the container's image |
 | ContainerImageId | ID of the container's image |
 | Err |	Usually null, otherwise will be a string containing and error from the logdriver |
+
+
+## Contribute
+
+See [here](CONTRIBUTING.md)
+
+
+## License
+
+See [LICENSE][] for the complete license.
+
+
+## Changelog
+
+A changelog is available [here](ChangeLog.md).
+
+
+## Contact
+
+Nicolas Lamirault <nicolas.lamirault@gmail.com>
+
+
