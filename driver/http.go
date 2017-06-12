@@ -95,7 +95,7 @@ func (d *driver) stopLoggingHandler() func(w http.ResponseWriter, r *http.Reques
 func (d *driver) capabilitiesHandler() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(&CapabilitiesResponse{
-			Cap: logger.Capability{ReadLogs: true},
+			Cap: d.GetCapability(),
 		})
 	}
 }

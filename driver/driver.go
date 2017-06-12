@@ -109,6 +109,10 @@ func (d *driver) ReadLogs(info logger.Info, config logger.ReadConfig) (io.ReadCl
 	return nil, nil
 }
 
+func (d *driver) GetCapability() logger.Capability {
+	return logger.Capability{ReadLogs: true}
+}
+
 func consumeLog(natsClient *nats.Client, lf *logPair) {
 	dec := protoio.NewUint32DelimitedReader(lf.stream, binary.BigEndian, 1e6)
 	defer dec.Close()

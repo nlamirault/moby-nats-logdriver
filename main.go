@@ -65,7 +65,7 @@ func main() {
 	if err := h.ServeUnix("moby-nats-logdriver", 0); err != nil {
 		panic(err)
 	}
-	if err != natsClient.Disconnect(); err != nil {
+	if err := natsClient.Disconnect(); err != nil {
 		panic(err)
 	}
 }
