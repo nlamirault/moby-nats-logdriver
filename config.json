@@ -1,0 +1,40 @@
+{
+  "description": "Consumes log message from containers and writes them to Nats",
+  "documentation": "-",
+  "entrypoint": ["/usr/bin/moby-nats-logdriver"],
+  "interface": {
+    "types": [
+      "docker.logdriver/1.0"
+    ],
+    "socket": "log.sock"
+  },
+  "network": {
+    "type": "host"
+  },
+  "env": [
+    {
+      "name": "LOG_LEVEL",
+      "description": "Set log level to output for plugin logs",
+      "value": "info",
+      "settable": [
+        "value"
+      ]
+    },
+    {
+        "name": "NATS_ADDRESS",
+        "description": "Nats server address. E.g. nats://localhost:4222",
+        "value": "",
+        "settable": [
+          "value"
+        ]
+      },
+      {
+        "name": "NATS_SUBJECT",
+        "description": "Name of the topic to write docker logs to",
+        "value": "",
+        "settable": [
+          "value"
+        ]
+      }
+    ]
+}
