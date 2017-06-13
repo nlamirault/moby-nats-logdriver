@@ -23,6 +23,7 @@ import (
 	"github.com/docker/go-plugins-helpers/sdk"
 
 	"github.com/nlamirault/moby-nats-logdriver/driver"
+	"github.com/nlamirault/moby-nats-logdriver/http"
 	"github.com/nlamirault/moby-nats-logdriver/nats"
 	"github.com/nlamirault/moby-nats-logdriver/version"
 )
@@ -60,8 +61,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	driver := driver.New(natsClient)
-	driver.SetupHandlers(&h)
+	http.SetupHandlers(&h, driver.New(natsClient))
 	if err := h.ServeUnix("moby-nats-logdriver", 0); err != nil {
 		panic(err)
 	}

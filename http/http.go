@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package driver
+package http
 
 import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net/http"
+	gohttp "net/http"
 
 	"github.com/docker/docker/daemon/logger"
 	"github.com/docker/docker/pkg/ioutils"
 	"github.com/docker/go-plugins-helpers/sdk"
+
+	"github.com/nlamirault/moby-nats-logdriver/driver"
 )
 
 type StartLoggingRequest struct {
@@ -48,14 +50,14 @@ type response struct {
 	Err string
 }
 
-func (d *driver) SetupHandlers(h *sdk.Handler) {
-	h.HandleFunc("/LogDriver.StartLogging", d.startLoggingHandler())
-	h.HandleFunc("/LogDriver.StopLogging", d.stopLoggingHandler())
-	h.HandleFunc("/LogDriver.Capabilities", d.capabilitiesHandler())
-	h.HandleFunc("/LogDriver.ReadLogs", d.readLogsHandler())
+func SetupHandlers(h *sdk.Handler, d *driver.Driver) {
+	h.HandleFunc("/LogDriver.StartLogging", startLoggingHandler(d))
+	h.HandleFunc("/LogDriver.StopLogging", stopLoggingHandler(d))
+	h.HandleFunc("/LogDriver.Capabilities", capabilitiesHandler(d))
+	h.HandleFunc("/LogDriver.ReadLogs", readLogsHandler(d))
 }
 
-func respond(err error, w http.ResponseWriter) {
+func respond(err error, w gohttp.ResponseWriter) {
 	var res response
 	if err != nil {
 		res.Err = err.Error()
@@ -63,11 +65,11 @@ func respond(err error, w http.ResponseWriter) {
 	json.NewEncoder(w).Encode(&res)
 }
 
-func (d *driver) startLoggingHandler() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func startLoggingHandler(d *driver.Driver) func(w gohttp.ResponseWriter, r *gohttp.Request) {
+	return func(w gohttp.ResponseWriter, r *gohttp.Request) {
 		var req StartLoggingRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			gohttp.Error(w, err.Error(), gohttp.StatusBadRequest)
 			return
 		}
 		if req.Info.ContainerID == "" {
@@ -80,11 +82,11 @@ func (d *driver) startLoggingHandler() func(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (d *driver) stopLoggingHandler() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func stopLoggingHandler(d *driver.Driver) func(w gohttp.ResponseWriter, r *gohttp.Request) {
+	return func(w gohttp.ResponseWriter, r *gohttp.Request) {
 		var req StopLoggingRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			gohttp.Error(w, err.Error(), gohttp.StatusBadRequest)
 			return
 		}
 		err := d.StopLogging(req.File)
@@ -92,25 +94,25 @@ func (d *driver) stopLoggingHandler() func(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (d *driver) capabilitiesHandler() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func capabilitiesHandler(d *driver.Driver) func(w gohttp.ResponseWriter, r *gohttp.Request) {
+	return func(w gohttp.ResponseWriter, r *gohttp.Request) {
 		json.NewEncoder(w).Encode(&CapabilitiesResponse{
 			Cap: d.GetCapability(),
 		})
 	}
 }
 
-func (d *driver) readLogsHandler() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func readLogsHandler(d *driver.Driver) func(w gohttp.ResponseWriter, r *gohttp.Request) {
+	return func(w gohttp.ResponseWriter, r *gohttp.Request) {
 		var req ReadLogsRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			gohttp.Error(w, err.Error(), gohttp.StatusBadRequest)
 			return
 		}
 
 		stream, err := d.ReadLogs(req.Info, req.Config)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			gohttp.Error(w, err.Error(), gohttp.StatusInternalServerError)
 			return
 		}
 		defer stream.Close()

@@ -41,7 +41,7 @@ type logPair struct {
 	info       logger.Info
 }
 
-type driver struct {
+type Driver struct {
 	mu         sync.Mutex
 	logs       map[string]*logPair
 	idx        map[string]*logPair
@@ -49,15 +49,15 @@ type driver struct {
 	natsClient *nats.Client
 }
 
-func New(natsClient *nats.Client) *driver {
-	return &driver{
+func New(natsClient *nats.Client) *Driver {
+	return &Driver{
 		logs:       make(map[string]*logPair),
 		idx:        make(map[string]*logPair),
 		natsClient: natsClient,
 	}
 }
 
-func (d *driver) StartLogging(file string, logCtx logger.Info) error {
+func (d *Driver) StartLogging(file string, logCtx logger.Info) error {
 	logrus.WithField("id", logCtx.ContainerID).WithField("file", file).WithField("logpath", logCtx.LogPath).Infof("Start logging")
 	d.mu.Lock()
 	if _, exists := d.logs[file]; exists {
@@ -92,7 +92,7 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	return nil
 }
 
-func (d *driver) StopLogging(file string) error {
+func (d *Driver) StopLogging(file string) error {
 	logrus.WithField("file", file).Infof("Stop logging")
 	d.mu.Lock()
 	lf, ok := d.logs[file]
@@ -104,12 +104,12 @@ func (d *driver) StopLogging(file string) error {
 	return nil
 }
 
-func (d *driver) ReadLogs(info logger.Info, config logger.ReadConfig) (io.ReadCloser, error) {
+func (d *Driver) ReadLogs(info logger.Info, config logger.ReadConfig) (io.ReadCloser, error) {
 	logrus.WithField("info", info).Debugf("Read logs")
 	return nil, nil
 }
 
-func (d *driver) GetCapability() logger.Capability {
+func (d *Driver) GetCapability() logger.Capability {
 	return logger.Capability{ReadLogs: true}
 }
 
